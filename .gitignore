@@ -1,0 +1,7 @@
+# Bỏ qua thư mục __pycache__ và các file bytecode của Python
+__pycache__/
+*.py[cod]
+
+# Các cấu hình và file môi trường ảo (nếu có)
+# env/
+# venv/

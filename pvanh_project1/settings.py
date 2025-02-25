@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     # Sub Services
     'customer',
+    'book',
 ]
 
 MIDDLEWARE = [
@@ -88,6 +89,8 @@ DATABASES = {
     },
 }
 
+import mongoengine
+mongoengine.connect(db="book_db", host="localhost", port=27017)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

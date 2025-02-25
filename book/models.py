@@ -11,6 +11,7 @@ class Book(Document):
     isbn = StringField(max_length=13, required=True)
     description = StringField()
     price = IntField(required=True)
+    image_url = StringField(max_length=500, default="")
 
     def __str__(self):
         return self.title

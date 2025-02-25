@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}
   MegaMarket - Cửa hàng sách trực tuyến
@@ -7,120 +8,120 @@
 
 {% block extra_css %}
   <style>
+    /* Only keep styles that can't be achieved with Bootstrap utilities */
     .hero-section {
       height: 100vh;
-      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66') center/cover;
-      margin-top: -76px; /* Adjust based on your navbar height */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
-      padding: 0 20px;
+      margin-top: -76px;
     }
     
-    .hero-content {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .hero-title {
-      font-size: 4rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    .hero-description {
-      font-size: 1.5rem;
-      margin-bottom: 2rem;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    }
-    
-    .hero-button {
-      padding: 15px 40px;
-      font-size: 1.2rem;
-      border-radius: 50px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.3s ease;
-      background: white;
-      color: #333;
-      border: 2px solid white;
-    }
-    
-    .hero-button:hover {
-      background: transparent;
-      color: white;
-    }
-    
-    .product-card {
-      transition: all 0.3s;
-    }
-    
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .card-img-top {
-      height: 300px;
+    .book-cover-container {
+      aspect-ratio: 2/3;
       overflow: hidden;
     }
     
-    .card-img-top img {
-      height: 100%;
+    .book-cover {
       object-fit: cover;
+      height: 100%;
+      width: 100%;
     }
     
     .hover-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       opacity: 0;
       transition: opacity 0.3s;
     }
     
-    .product-card:hover .hover-overlay {
+    .card:hover .hover-overlay {
       opacity: 1;
+    }
+    
+    /* Animation for hero content */
+    .hero-content {
+      animation: fadeInUp 1s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Book card animations */
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Button animation */
+    .btn-light {
+      transition: all 0.3s ease;
+    }
+    
+    .btn-light:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0.5rem 1rem rgba(255, 255, 255, 0.15);
+    }
+    
+    /* Add to cart button animation */
+    .add-to-cart {
+      transition: all 0.2s ease;
+    }
+    
+    .add-to-cart:hover {
+      transform: scale(1.1);
     }
   </style>
 {% endblock %}
 
 {% block content %}
   <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1 class="hero-title">MegaMarket Books</h1>
-      <p class="hero-description">Khám phá kho tàng tri thức với hàng ngàn đầu sách chất lượng</p>
-      <a href="#products" class="btn hero-button">Khám phá ngay</a>
+  <div class="hero-section d-flex align-items-center text-white text-center" style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% static 'images/hero.jpg' %}') center/cover;">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 hero-content">
+          <h1 class="display-3 fw-bold mb-4 text-shadow">MegaMarket Books</h1>
+          <p class="lead mb-4">Khám phá kho tàng tri thức với hàng ngàn đầu sách chất lượng</p>
+          <a href="#products" class="btn btn-light btn-lg px-5 rounded-pill text-uppercase">Khám phá ngay</a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="container mt-4" id="products">
-    <!-- Products Grid -->
+  <div class="container py-5" id="products">
     <div class="row g-4">
       {% for book in books %}
         <div class="col-md-3">
-          <div class="card product-card h-100">
-            <div class="card-img-top position-relative">
-              {% comment %} <img src="{{ book.image_url|default:'https://via.placeholder.com/200x300' }}" class="img-fluid" alt="{{ book.title }}" /> {% endcomment %}
-              <div class="hover-overlay">
+          <div class="card h-100 shadow-sm transition-all">
+            <div class="position-relative">
+              <div class="book-cover-container">
+                <img src="{% if book.image_url %}
+                    {{ book.image_url }}
+                  {% else %}
+                    {% static 'images/placeholder.jpg' %}
+                  {% endif %}"
+                  class="book-cover"
+                  alt="{{ book.title }}"
+                  loading="lazy" />
+              </div>
+              <div class="hover-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
                 <button class="btn btn-primary add-to-cart" data-book-id="{{ book.id }}"><i class="bi bi-cart-plus"></i> Thêm vào giỏ</button>
               </div>
             </div>
             <div class="card-body">
               <h5 class="card-title text-truncate">{{ book.title }}</h5>
-              <p class="card-text text-muted mb-1">{{ book.author }}</p>
+              <p class="card-text text-muted small mb-2">{{ book.author }}</p>
               <div class="d-flex justify-content-between align-items-center">
-                <div class="price-block">
-                  <span class="card-text fw-bold text-primary h5">
+                <div>
+                  <span class="h5 text-primary mb-0">
                     {% if book.price %}
                       {{ book.price|floatformat:0|intcomma }}₫
                     {% else %}
@@ -139,7 +140,7 @@
           </div>
         </div>
       {% empty %}
-        <div class="col-12 text-center">
+        <div class="col-12 text-center py-5">
           <p class="lead text-muted">Chưa có sách nào trong hệ thống.</p>
         </div>
       {% endfor %}

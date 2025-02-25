@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Sub Services
     'customer',
     'book',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -82,6 +83,14 @@ DATABASES = {
     'customer_db': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'customer_db',
+        'USER': 'root',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+    'cart_db': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cart_db',
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST': 'localhost',

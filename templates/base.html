@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <!-- Custom Styles -->
     {% block extra_css %}
+
     {% endblock %}
   </head>
   <body>
@@ -84,7 +85,7 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container mt-4">
+    <div class="container-fluid px-0">
       {% block content %}
         <!-- Nội dung trang sẽ được chèn vào đây -->
       {% endblock %}
@@ -94,7 +95,7 @@
     <footer class="bg-dark text-white mt-5 py-4">
       <div class="container">
         <div class="row">
-          <div class="col-md-3 mb-3">
+          <div class="col-md-4 mb-3">
             <h5>Về MegaMarket</h5>
             <ul class="list-unstyled">
               <li>
@@ -112,7 +113,7 @@
             </ul>
           </div>
 
-          <div class="col-md-3 mb-3">
+          <div class="col-md-4 mb-3">
             <h5>Hỗ trợ khách hàng</h5>
             <ul class="list-unstyled">
               <li>
@@ -130,7 +131,7 @@
             </ul>
           </div>
 
-          <div class="col-md-3 mb-3">
+          <div class="col-md-4 mb-3">
             <h5>Thông tin liên hệ</h5>
             <p>
               <i class="bi bi-geo-alt"></i> Số 125 Nguyễn Trãi, P. Thanh Xuân Nam, Q. Thanh Xuân, TP. Hà Nội
@@ -144,16 +145,6 @@
             <p>
               <i class="bi bi-clock"></i> Hoạt động: 24/7
             </p>
-          </div>
-
-          <div class="col-md-3 mb-3">
-            <h5>Tải ứng dụng MegaMarket</h5>
-            <div class="d-flex gap-2 mb-3">
-              <img src="https://place-hold.it/120x40" alt="App Store" class="img-fluid" />
-              <img src="https://place-hold.it/120x40" alt="Google Play" class="img-fluid" />
-            </div>
-            <h5>Chứng nhận</h5>
-            <img src="https://place-hold.it/200x40" alt="Chứng nhận" class="img-fluid" />
           </div>
         </div>
 

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Trang Chủ | MegaMarket - Siêu thị trực tuyến hàng đầu Việt Nam
+{% endblock %}
+
+{% block content %}
+  <div class="container text-center">
+    <h1 class="mt-5">Chào mừng bạn đến với MegaMarket! 🛍️</h1>
+    <p class="lead">Khám phá hàng ngàn sản phẩm chất lượng với giá tốt nhất.</p>
+
+    {% comment %} <div class="mt-4">
+      <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg"><i class="bi bi-cart-check"></i> Mua sắm ngay</a>
+    </div> {% endcomment %}
+
+    <hr class="my-5" />
+
+    <div class="row">
+      <div class="col-md-4">
+        <i class="bi bi-truck display-4 text-primary"></i>
+        <h3>Giao hàng toàn quốc</h3>
+        <p>Giao hàng nhanh chóng đến mọi tỉnh thành.</p>
+      </div>
+      <div class="col-md-4">
+        <i class="bi bi-shield-check display-4 text-success"></i>
+        <h3>Chất lượng đảm bảo</h3>
+        <p>Sản phẩm chính hãng, kiểm định chặt chẽ.</p>
+      </div>
+      <div class="col-md-4">
+        <i class="bi bi-credit-card display-4 text-warning"></i>
+        <h3>Thanh toán linh hoạt</h3>
+        <p>Hỗ trợ nhiều phương thức thanh toán tiện lợi.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

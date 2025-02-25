@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Giỏ Hàng | MegaMarket
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .cart-container {
+      padding: 30px 0;
+    }
+    .cart-header {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    .cart-item {
+      padding: 20px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .cart-item img {
+      max-width: 100px;
+      height: auto;
+    }
+    .item-details {
+      display: flex;
+      align-items: center;
+    }
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .quantity-btn {
+      padding: 5px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 4px;
+    }
+    .quantity-input {
+      width: 60px;
+      text-align: center;
+    }
+    .remove-btn {
+      color: #dc3545;
+      border: none;
+      background: none;
+      padding: 5px;
+    }
+    .cart-summary {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .checkout-btn {
+      background: #28a745;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      margin-top: 20px;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="container cart-container">
+    <div class="cart-header">
+      <h1>Giỏ Hàng của Bạn</h1>
+    </div>
+
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% elif cart_items %}
+      <div class="row">
+        <div class="col-lg-8">
+          {% for item in cart_items %}
+            <div class="cart-item">
+              <div class="row align-items-center">
+                <div class="col-md-2">
+                  <img src="{{ item.book_image_url|default:'/static/images/book-placeholder.jpg' }}" alt="{{ item.book_title }}" class="img-fluid" />
+                </div>
+                <div class="col-md-4">
+                  <h5>{{ item.book_title }}</h5>
+                  <p class="text-muted">{{ item.book_author }}</p>
+                </div>
+                <div class="col-md-3">
+                  <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="updateQuantity('{{ item.id }}', -1)">-</button>
+                    <input type="number" class="form-control quantity-input" value="{{ item.quantity }}" min="1" max="99" onchange="updateQuantity('{{ item.id }}', this.value)" />
+                    <button class="quantity-btn" onclick="updateQuantity('{{ item.id }}', 1)">+</button>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <p class="h6">{{ item.book_price }} VND</p>
+                </div>
+                <div class="col-md-1">
+                  <button class="remove-btn" onclick="removeItem('{{ item.id }}')"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="col-lg-4">
+          <div class="cart-summary">
+            <h4>Tổng đơn hàng</h4>
+            <hr />
+            <div class="d-flex justify-content-between mb-2">
+              <span>Tạm tính:</span>
+              <span>{{ total_price }} VND</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Phí vận chuyển:</span>
+              <span>0 VND</span>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between h5">
+              <span>Tổng cộng:</span>
+              <span>{{ total_price }} VND</span>
+            </div>
+            <button class="checkout-btn">Tiến hành thanh toán</button>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+        <h3>Giỏ hàng của bạn đang trống</h3>
+        <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng của bạn</p>
+        <a href="{% url 'book_list' %}" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
+      </div>
+    {% endif %}
+  </div>
+
+  {% block extra_js %}
+    <script>
+      function updateQuantity(itemId, change) {
+        // Add your quantity update logic here
+        console.log('Update quantity', itemId, change)
+      }
+      
+      function removeItem(itemId) {
+        // Add your remove item logic here
+        console.log('Remove item', itemId)
+      }
+    </script>
+  {% endblock %}
+{% endblock %}

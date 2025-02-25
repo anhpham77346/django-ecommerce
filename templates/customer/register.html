@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+
 {% block title %}
   Đăng ký tài khoản
 {% endblock %}
-{% block content %}
+
+{% block extra_css %}
   <style>
     .register-container {
       min-height: 100vh;
@@ -61,7 +63,9 @@
       gap: 20px;
     }
   </style>
+{% endblock %}
 
+{% block content %}
   <div class="register-container">
     <div class="row justify-content-center">
       <div class="col-md-6">

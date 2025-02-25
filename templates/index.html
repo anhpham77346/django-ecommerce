@@ -1,36 +1,122 @@
 {% extends 'base.html' %}
 
 {% block title %}
-  Trang Chủ | MegaMarket - Siêu thị trực tuyến hàng đầu Việt Nam
+  MegaMarket - Cửa hàng sách trực tuyến
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .hero-section {
+      height: 500px;
+      background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66') center/cover;
+      margin-top: -24px;
+    }
+    
+    .hero-img-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .product-card {
+      transition: all 0.3s;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-img-top {
+      height: 300px;
+      overflow: hidden;
+    }
+    
+    .card-img-top img {
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .hover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .product-card:hover .hover-overlay {
+      opacity: 1;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-  <div class="container text-center">
-    <h1 class="mt-5">Chào mừng bạn đến với MegaMarket! 🛍️</h1>
-    <p class="lead">Khám phá hàng ngàn sản phẩm chất lượng với giá tốt nhất.</p>
-
-    {% comment %} <div class="mt-4">
-      <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg"><i class="bi bi-cart-check"></i> Mua sắm ngay</a>
-    </div> {% endcomment %}
-
-    <hr class="my-5" />
-
-    <div class="row">
-      <div class="col-md-4">
-        <i class="bi bi-truck display-4 text-primary"></i>
-        <h3>Giao hàng toàn quốc</h3>
-        <p>Giao hàng nhanh chóng đến mọi tỉnh thành.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-shield-check display-4 text-success"></i>
-        <h3>Chất lượng đảm bảo</h3>
-        <p>Sản phẩm chính hãng, kiểm định chặt chẽ.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-credit-card display-4 text-warning"></i>
-        <h3>Thanh toán linh hoạt</h3>
-        <p>Hỗ trợ nhiều phương thức thanh toán tiện lợi.</p>
+  <!-- Hero Section -->
+  <div class="hero-section position-relative mb-5">
+    {% comment %} <div class="hero-img-overlay"></div> {% endcomment %}
+    <div class="container h-100">
+      <div class="row h-100 align-items-center">
+        <div class="col-md-6 text-white">
+          <h1 class="display-4 fw-bold">MegaMarket Books</h1>
+          <p class="lead">Khám phá kho tàng tri thức với hàng ngàn đầu sách chất lượng</p>
+          <a href="#products" class="btn btn-light btn-lg">Khám phá ngay</a>
+        </div>
       </div>
     </div>
   </div>
+
+  <div class="container" id="products">
+    <!-- Products Grid -->
+    <div class="row g-4">
+      {% for book in books %}
+        <div class="col-md-3">
+          <div class="card product-card h-100">
+            <div class="card-img-top position-relative">
+              {% comment %} <img src="{{ book.image_url|default:'https://via.placeholder.com/200x300' }}" class="img-fluid" alt="{{ book.title }}" /> {% endcomment %}
+              <div class="hover-overlay">
+                <button class="btn btn-primary add-to-cart" data-book-id="{{ book.id }}"><i class="bi bi-cart-plus"></i> Thêm vào giỏ</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title text-truncate">{{ book.title }}</h5>
+              <p class="card-text text-muted mb-1">{{ book.author }}</p>
+              <p class="card-text fw-bold text-primary">{{ book.price }} VND</p>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center">
+          <p class="lead text-muted">Chưa có sách nào trong hệ thống.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.add-to-cart').forEach((button) => {
+        button.addEventListener('click', function () {
+          const bookId = this.getAttribute('data-book-id')
+          fetch(`cart/add-to-cart/${bookId}/`, {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+            .then((response) => response.json())
+            .then((data) => alert(data.error || data.message))
+        })
+      })
+    })
+  </script>
 {% endblock %}

@@ -3,7 +3,7 @@
   Đăng nhập
 {% endblock %}
 
-{% block content %}
+{% block extra_css %}
   <style>
     .login-container {
       min-height: 100vh;
@@ -58,7 +58,9 @@
       text-decoration: underline;
     }
   </style>
+{% endblock %}
 
+{% block content %}
   <div class="login-container">
     <div class="row justify-content-center align-items-center h-100">
       <div class="col-md-5">

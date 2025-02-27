@@ -25,11 +25,12 @@ def cart_view(request):
 
         # Thêm thông tin sách từ MongoDB vào mỗi mục giỏ hàng
         for item in cart_items:
-            book = Book.objects(id=ObjectId(item.book_id)).first()
+            book = get_book_by_id(item.book_id)
+
             if book:
-                item.book_title = book.title
-                item.book_author = book.author
-                item.book_price = book.price
+                item.book_title = book["title"]
+                item.book_author = book["author"]
+                item.book_price = book["price"]
             else:
                 item.book_title = "Không tìm thấy"
                 item.book_author = "Không rõ"

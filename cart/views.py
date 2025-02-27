@@ -82,3 +82,28 @@ class AddToCartView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RemoveFromCartView(APIView):
+    def delete(self, request, item_id):
+        # Kiểm tra người dùng đã đăng nhập chưa
+        if not request.user.is_authenticated:
+            return Response({"error": "Bạn cần đăng nhập."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            # Tìm giỏ hàng của người dùng
+            cart = Cart.objects.using('cart_db').filter(customer_id=request.user.id).first()
+            if not cart:
+                return Response({"error": "Giỏ hàng trống."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Kiểm tra xem item có trong giỏ hàng không
+            cart_item = CartItem.objects.using('cart_db').filter(cart=cart, id=item_id).first()
+            if not cart_item:
+                return Response({"error": "Sản phẩm không có trong giỏ hàng."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Xóa sản phẩm khỏi giỏ hàng
+            cart_item.delete()
+
+            return Response({"message": "Đã xóa sản phẩm khỏi giỏ hàng."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

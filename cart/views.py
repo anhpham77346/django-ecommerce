@@ -1,9 +1,12 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.shortcuts import render
 from book.models import Book
 from .models import Cart, CartItem
 from django.contrib.auth.decorators import login_required
 from bson import ObjectId
+from .api_clients import get_book_by_id
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 
 @login_required(login_url='/account/login')
 def cart_view(request):
@@ -22,11 +25,13 @@ def cart_view(request):
 
         # Thêm thông tin sách từ MongoDB vào mỗi mục giỏ hàng
         for item in cart_items:
-            book = Book.objects(id=ObjectId(item.book_id)).first()
+            book = get_book_by_id(item.book_id)
+
             if book:
-                item.book_title = book.title
-                item.book_author = book.author
-                item.book_price = book.price
+                item.book_title = book["title"]
+                item.book_author = book["author"]
+                item.book_price = book["price"]
+                item.book_url = book["image_url"]
             else:
                 item.book_title = "Không tìm thấy"
                 item.book_author = "Không rõ"
@@ -44,31 +49,62 @@ def cart_view(request):
     except Exception as e:
         return render(request, "cart/cart.html", {"error": str(e)})
 
-def add_to_cart(request, book_id):
-    if not request.user.is_authenticated:
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({"error": "Bạn cần đăng nhập để thêm vào giỏ hàng."}, status=403)
-        return redirect('login')
+class AddToCartView(APIView):
+    def post(self, request, book_id):
+        # Kiểm tra người dùng đã đăng nhập chưa
+        if not request.user.is_authenticated:
+            return Response({"error": "Bạn cần đăng nhập."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    try:
-        book = Book.objects(id=ObjectId(book_id)).first()
+        try:
+            # Lấy thông tin sách từ API
+            book = get_book_by_id(book_id)
 
-        if not book:
-            return JsonResponse({"error": "Sách không tồn tại."}, status=404)
-        
-        cart, created = Cart.objects.using('cart_db').get_or_create(customer_id=request.user.id)
+            if not book:
+                return Response({"error": "Sách không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
 
-        cart_item, created = CartItem.objects.using('cart_db').get_or_create(
-            cart=cart,
-            book_id=str(book.id),
-            defaults={"quantity": 1, "price_at_purchase": book.price}
-        )
+            # Tìm hoặc tạo giỏ hàng của người dùng
+            cart, created = Cart.objects.using('cart_db').get_or_create(customer_id=request.user.id)
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
+            # Thêm sách vào giỏ hàng
+            cart_item, created = CartItem.objects.using('cart_db').get_or_create(
+                cart=cart,
+                book_id=str(book["id"]),
+                defaults={"quantity": 1, "price_at_purchase": book["price"]}
+            )
 
-        return JsonResponse({"message": "Đã thêm vào giỏ hàng", "book": book.title})
+            if not created:
+                cart_item.quantity += 1
+                cart_item.save()
 
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+            return Response(
+                {"message": "Đã thêm vào giỏ hàng", "book": book["title"]},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RemoveFromCartView(APIView):
+    def delete(self, request, item_id):
+        # Kiểm tra người dùng đã đăng nhập chưa
+        if not request.user.is_authenticated:
+            return Response({"error": "Bạn cần đăng nhập."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            # Tìm giỏ hàng của người dùng
+            cart = Cart.objects.using('cart_db').filter(customer_id=request.user.id).first()
+            if not cart:
+                return Response({"error": "Giỏ hàng trống."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Kiểm tra xem item có trong giỏ hàng không
+            cart_item = CartItem.objects.using('cart_db').filter(cart=cart, id=item_id).first()
+            if not cart_item:
+                return Response({"error": "Sản phẩm không có trong giỏ hàng."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Xóa sản phẩm khỏi giỏ hàng
+            cart_item.delete()
+
+            return Response({"message": "Đã xóa sản phẩm khỏi giỏ hàng."}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

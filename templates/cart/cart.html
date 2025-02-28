@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}
   Giỏ Hàng | MegaMarket
@@ -27,20 +28,15 @@
       display: flex;
       align-items: center;
     }
-    .quantity-controls {
+    .fixed-quantity {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      justify-content: center;
     }
     .quantity-btn {
       padding: 5px 12px;
       border: 1px solid #ddd;
       background: white;
       border-radius: 4px;
-    }
-    .quantity-input {
-      width: 60px;
-      text-align: center;
     }
     .remove-btn {
       color: #dc3545;
@@ -78,20 +74,24 @@
       <div class="row">
         <div class="col-lg-8">
           {% for item in cart_items %}
-            <div class="cart-item">
+            <div class="cart-item" id="cart-item-{{ item.id }}" data-price="{{ item.total_price_per_item }}">
               <div class="row align-items-center">
                 <div class="col-md-2">
-                  <img src="{{ item.book_image_url|default:'/static/images/book-placeholder.jpg' }}" alt="{{ item.book_title }}" class="img-fluid" />
+                  <img src="{% if item.book_url %}
+                      {{ item.book_url }}
+                    {% else %}
+                      {% static 'images/placeholder.jpg' %}
+                    {% endif %}"
+                    alt="{{ item.book_title }}"
+                    class="img-fluid" />
                 </div>
                 <div class="col-md-4">
                   <h5>{{ item.book_title }}</h5>
                   <p class="text-muted">{{ item.book_author }}</p>
                 </div>
                 <div class="col-md-3">
-                  <div class="quantity-controls">
-                    <button class="quantity-btn" onclick="updateQuantity('{{ item.id }}', -1)">-</button>
-                    <input type="number" class="form-control quantity-input" value="{{ item.quantity }}" min="1" max="99" onchange="updateQuantity('{{ item.id }}', this.value)" />
-                    <button class="quantity-btn" onclick="updateQuantity('{{ item.id }}', 1)">+</button>
+                  <div class="fixed-quantity">
+                    <span class="fw-bold">{{ item.quantity }}</span>
                   </div>
                 </div>
                 <div class="col-md-2">
@@ -114,7 +114,7 @@
             <hr />
             <div class="d-flex justify-content-between mb-2">
               <span>Tạm tính:</span>
-              <span class="fw-bold">{{ total_price|floatformat:0|intcomma }}₫</span>
+              <span class="fw-bold" id="total-price">{{ total_price|floatformat:0|intcomma }}₫</span>
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span>Phí vận chuyển:</span>
@@ -123,7 +123,7 @@
             <hr />
             <div class="d-flex justify-content-between h5">
               <span>Tổng cộng:</span>
-              <span class="text-primary">{{ total_price|floatformat:0|intcomma }}₫</span>
+              <span class="text-primary" id="final-total">{{ total_price|floatformat:0|intcomma }}₫</span>
             </div>
             <button class="checkout-btn">Tiến hành thanh toán</button>
           </div>
@@ -141,14 +141,36 @@
 
   {% block extra_js %}
     <script>
-      function updateQuantity(itemId, change) {
-        // Add your quantity update logic here
-        console.log('Update quantity', itemId, change)
-      }
-      
       function removeItem(itemId) {
-        // Add your remove item logic here
-        console.log('Remove item', itemId)
+        fetch(`/cart/remove/${itemId}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message) {
+              const itemElement = document.getElementById(`cart-item-${itemId}`)
+              if (itemElement) {
+                let itemPrice = parseFloat(itemElement.getAttribute('data-price'))
+                itemElement.remove()
+      
+                // Cập nhật tổng tiền
+                let totalPriceElement = document.getElementById('total-price')
+                let finalTotalElement = document.getElementById('final-total')
+      
+                let currentTotal = parseFloat(totalPriceElement.innerText.replace(/[^0-9.-]+/g, ''))
+                let newTotal = currentTotal - itemPrice
+      
+                totalPriceElement.innerText = newTotal.toLocaleString('vi-VN') + '₫'
+                finalTotalElement.innerText = newTotal.toLocaleString('vi-VN') + '₫'
+              }
+            } else {
+              alert(data.error)
+            }
+          })
+          .catch((error) => console.error('Error:', error))
       }
     </script>
   {% endblock %}

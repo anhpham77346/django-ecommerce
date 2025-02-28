@@ -31,6 +31,7 @@ def cart_view(request):
                 item.book_title = book["title"]
                 item.book_author = book["author"]
                 item.book_price = book["price"]
+                item.book_url = book["image_url"]
             else:
                 item.book_title = "Không tìm thấy"
                 item.book_author = "Không rõ"
